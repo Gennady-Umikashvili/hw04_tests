@@ -42,7 +42,12 @@ class Post(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         related_name='posts',
-        verbose_name="Группа"
+        verbose_name='Группа'
+    )
+    image = models.ImageField(
+        upload_to='posts/',
+        blank=True,
+        verbose_name='Картинка'
     )
 
     class Meta:
@@ -51,4 +56,4 @@ class Post(models.Model):
         verbose_name_plural = "Посты"
 
     def __str__(self):
-        return self.text
+        return self.text[:15]

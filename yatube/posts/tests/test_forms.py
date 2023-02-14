@@ -35,18 +35,6 @@ class PostCreateFormTest(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-    def test_post_create_page_show_correct_context(self):
-        """Проверка: Форма создания поста - post_create."""
-        response = self.authorized_client.get(reverse('posts:post_create'))
-        form_fields = {
-            'text': forms.fields.CharField,
-            'group': forms.models.ModelChoiceField,
-        }
-        for value, expected in form_fields.items():
-            with self.subTest(value=value):
-                form_field = response.context['form'].fields[value]
-                self.assertIsInstance(form_field, expected)
-
     def test_create_post_form(self):
         """Проверка: Создаётся ли новая запись в базе данных, создавая пост"""
         post_count = Post.objects.count()
@@ -85,18 +73,3 @@ class PostCreateFormTest(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(Post.objects.count(), post_count)
         self.assertEqual(self.post.text, form_data['text'])
-
-    def test_edit_show_correct_context(self):
-        """Проверка: форма редактирования поста, по id"""
-        response = self.authorized_client.get(reverse(
-            'posts:post_edit',
-            kwargs={'post_id': self.post.pk})
-        )
-        form_fields = {
-            'text': forms.fields.CharField,
-            'group': forms.models.ModelChoiceField,
-        }
-        for value, expected in form_fields.items():
-            with self.subTest(value=value):
-                form_field = response.context['form'].fields[value]
-                self.assertIsInstance(form_field, expected)

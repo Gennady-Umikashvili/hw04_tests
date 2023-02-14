@@ -129,7 +129,7 @@ class PostPagesTests(TestCase):
         self.assertIn('page_obj', response.context)
 
     def test_post_detail_list_page_show_correct_context(self):
-        """Проверка: Шаблон post_detail с правильным контекстом"""
+        """Проверка: Шаблон post_detai с правильным контекстом"""
         response = (self.authorized_client.get(
             reverse('posts:post_detail',
                     kwargs={'post_id': self.post.id})))
@@ -182,7 +182,7 @@ class PaginatorViewsTest(TestCase):
                 author=cls.user,
                 group=cls.group,
             )
-            for number_post in range(COUNT_POST)
+            for number_post in range(13)
         ]
         Post.objects.bulk_create(cls.posts)
 
@@ -197,8 +197,8 @@ class PaginatorViewsTest(TestCase):
             ('posts:profile', (self.user.username,))
         )
         pages_units = (
-            ('?page=1', COUNT_POST_PAGE_1),
-            ('?page=2', COUNT_POST_PAGE_2)
+            ('?page=1', 10),
+            ('?page=2', 3)
         )
         for address, args in pagin_urls:
             for page, count_posts in pages_units:

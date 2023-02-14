@@ -36,7 +36,7 @@ class PostURLTests(TestCase):
 
     def test_post_list_url_exists_at_desired_location_for_all(self):
         """Тест доступности страницы по ожидаемому адресу."""
-        pages_status = [
+        pages_status = (
             [reverse('posts:index'),
                 self.guest, HTTPStatus.OK],
             [reverse('posts:group_list', kwargs={'slug': self.group.slug}),
@@ -53,8 +53,8 @@ class PostURLTests(TestCase):
                 self.other, HTTPStatus.FOUND],
             [reverse('posts:post_edit', kwargs={'post_id': self.post.id}),
                 self.author, HTTPStatus.OK],
-            ['/unexisting_page/', self.author, HTTPStatus.NOT_FOUND]
-        ]
+            ['/unexisting_page/', self.author, HTTPStatus.NOT_FOUND],
+        )
         for address, client, code in pages_status:
             with self.subTest(address=address, client=client):
                 self.assertEqual(
@@ -68,22 +68,23 @@ class PostURLTests(TestCase):
             resp, '/auth/login/?next=%2Fcreate%2F', HTTPStatus.FOUND)
 
     def test_edit_unavailability_by_not_author(self):
-        """Недоступность для не автора (Переадресация)."""
+        """Доступность только автору (Переадресация)."""
         resp = self.other.get('/posts/1/edit/')
         self.assertRedirects(
             resp, '/posts/1/', HTTPStatus.FOUND)
 
     def test__urls_author_templates(self):
-        """Проврка на соответствие шаблона для автора редактирования"""
+        """Проверка на соответствие шаблона для автора редактирования"""
         resp = self.author.get('/posts/1/edit/')
         self.assertTemplateUsed(resp, 'posts/create_post.html')
 
     def test_accordance_urls_and_templates(self):
-        """Проврка на соответствие урл и шаблонов"""
+        """Проверка на соответствие урл и шаблонов"""
         url_templates_names = {
             '/': 'posts/index.html',
             '/group/slug/': 'posts/group_list.html',
             '/create/': 'posts/create_post.html',
+            # '/posts/1/edit/': 'posts/create_post.html',
         }
         for address, template in url_templates_names.items():
             with self.subTest(address=address):

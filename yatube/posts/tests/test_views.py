@@ -7,6 +7,7 @@ from posts.models import Group, Post, User
 COUNT_POST_PAGE_1 = 10
 COUNT_POST_PAGE_2 = 3
 COUNT_POST = 13
+TEXT = 'TEXT_FOR_THE_TEST'
 
 class PostPagesTests(TestCase):
     @classmethod
@@ -26,7 +27,7 @@ class PostPagesTests(TestCase):
         )
         cls.post = Post.objects.create(
             author=cls.author,
-            text='TEXT_FOR_TEST',
+            text=TEXT,
             group=cls.group
         )
 
@@ -101,7 +102,7 @@ class PostPagesTests(TestCase):
         """Проверка: Шаблон index с правильным контекстом"""
         response = self.authorized_client.get(reverse('posts:index'))
         post = response.context['page_obj'][0]
-        self.assertEqual(post.text, 'TEXT_FOR_TEST')
+        self.assertEqual(post.text, TEXT)
         self.assertEqual(post.author, self.author)
         self.assertEqual(post.group, self.group)
         self.assertIn('page_obj', response.context)
@@ -113,7 +114,7 @@ class PostPagesTests(TestCase):
                     kwargs={'slug': 'slug'})))
         group = response.context['page_obj'][0]
         self.assertEqual(group.group, self.group)
-        self.assertEqual(group.text, 'TEXT_FOR_TEST')
+        self.assertEqual(group.text, TEXT)
         self.assertEqual(group.author, self.author)
         self.assertIn('page_obj', response.context)
 
@@ -124,7 +125,7 @@ class PostPagesTests(TestCase):
         )
         post = response.context['page_obj'][0]
         self.assertEqual(post.group, self.group)
-        self.assertEqual(post.text, 'TEXT_FOR_TEST')
+        self.assertEqual(post.text, TEXT)
         self.assertEqual(post.author, self.author)
         self.assertIn('page_obj', response.context)
 
@@ -134,7 +135,7 @@ class PostPagesTests(TestCase):
             reverse('posts:post_detail',
                     kwargs={'post_id': self.post.id})))
         post_detail = response.context['post']
-        self.assertEqual(post_detail.text, 'TEXT_FOR_TEST')
+        self.assertEqual(post_detail.text, TEXT)
         self.assertEqual(post_detail.group, self.group)
         self.assertEqual(post_detail.author, self.author)
 
@@ -178,7 +179,7 @@ class PaginatorViewsTest(TestCase):
         )
         cls.posts = [
             Post(
-                text=f' "TEXT_FOR_TEST" {number_post}',
+                text=f' TEXT {number_post}',
                 author=cls.user,
                 group=cls.group,
             )

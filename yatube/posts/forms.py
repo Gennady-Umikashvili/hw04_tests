@@ -9,7 +9,7 @@ User = get_user_model()
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('group', 'text', 'image') 
+        fields = ('text', 'group', 'image') 
         
 # class PostForm(ModelForm):
 #     class Meta:

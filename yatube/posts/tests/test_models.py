@@ -12,7 +12,7 @@ class PostModelTest(TestCase):
         cls.user = User.objects.create_user(username='User')
         cls.post = Post.objects.create(
             author=cls.user,
-            text='TEXT_FOR_TEST_1',
+            text='TEXT_FOR_THE_TEST',
         )
 
     def test_models_have_correct_object_names(self):

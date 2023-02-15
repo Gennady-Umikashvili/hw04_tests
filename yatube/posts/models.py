@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from sorl.thumbnail import get_thumbnail
+from sorl.thumbnail import delete
 
 User = get_user_model()
 
@@ -25,7 +27,9 @@ class Group(models.Model):
 
 
 class Post(models.Model):
-    text = models.TextField(verbose_name="Текст")
+    text = models.TextField(
+        verbose_name='Текст',
+        help_text='Текст нового поста')
     pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата публикации"
@@ -42,7 +46,8 @@ class Post(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         related_name='posts',
-        verbose_name='Группа'
+        verbose_name='Группа',
+        help_text='Группа, к которой будет относиться пост'
     )
     image = models.ImageField(
         upload_to='posts/',

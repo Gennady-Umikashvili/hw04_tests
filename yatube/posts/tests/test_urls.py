@@ -73,20 +73,21 @@ class PostURLTests(TestCase):
         self.assertRedirects(
             resp, '/posts/1/', HTTPStatus.FOUND)
 
-    def test__urls_author_templates(self):
-        """Проверка на соответствие шаблона для автора редактирования"""
-        resp = self.author.get('/posts/1/edit/')
-        self.assertTemplateUsed(resp, 'posts/create_post.html')
+    # def test__urls_author_templates(self):
+    #     """Проверка на соответствие шаблона для автора редактирования"""
+    #     resp = self.author.get('/posts/1/edit/')
+    #     self.assertTemplateUsed(resp, 'posts/create_post.html')
 
     def test_accordance_urls_and_templates(self):
         """Проверка на соответствие урл и шаблонов"""
+        resp = self.author.get('/posts/1/edit/')
         url_templates_names = {
             '/': 'posts/index.html',
             '/group/slug/': 'posts/group_list.html',
             '/create/': 'posts/create_post.html',
-            # '/posts/1/edit/': 'posts/create_post.html',
         }
         for address, template in url_templates_names.items():
             with self.subTest(address=address):
                 response = self.other.get(address)
                 self.assertTemplateUsed(response, template)
+        self.assertTemplateUsed(resp, 'posts/create_post.html')

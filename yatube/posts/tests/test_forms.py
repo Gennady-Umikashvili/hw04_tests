@@ -107,7 +107,6 @@ class PostCreateFormTest(TestCase):
         )
         self.assertEqual(post_count, new_post_count)
 
-
     def test_edit_post_form(self):
         """Проверка: происходит ли изменение поста в базе данных"""
         post_count = Post.objects.count()

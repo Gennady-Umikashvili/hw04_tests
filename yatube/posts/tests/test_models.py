@@ -5,6 +5,7 @@ from posts.models import Group, Post, User
 
 CHARACTERS_TEXT = 15
 
+
 class PostModelTest(TestCase):
     @classmethod
     def setUpClass(cls):

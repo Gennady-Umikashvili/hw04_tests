@@ -9,12 +9,13 @@ COUNT_POST_PAGE_2 = 3
 COUNT_POST = 13
 TEXT = 'TEXT_FOR_THE_TEST'
 
+
 class PostPagesTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create(username='Author')
-        cls.author = User.objects.create(username='User')
+        cls.user = User.objects.create(username='User')
+        cls.author = User.objects.create(username='Author')
         cls.group = Group.objects.create(
             title='Название',
             slug='slug',
@@ -67,7 +68,7 @@ class PostPagesTests(TestCase):
                 form_field = response.context['form'].fields[value]
                 self.assertIsInstance(form_field, expected)
         self.assertFalse(response.context['is_edit'])
-    
+
     def test_post_edit_page_show_correct_context(self):
         """Проверка: Форма создания поста - post_create."""
         response = self.authorized_client.get(
@@ -83,20 +84,18 @@ class PostPagesTests(TestCase):
         self.assertTrue(response.context['is_edit'])
 
     def test_post_on_index_group_profile_create(self):
-        """Проверка: Созданный пост появился на Группе, Профайле, Главной"""
-        reverse_page_names_post = {
-            reverse('posts:index'): self.group.slug,
+        """Проверка: Созданный пост появился в Группе, Профайле, Главной"""
+        reverse_page_names_post = [
+            reverse('posts:index'),
             reverse('posts:profile', kwargs={
-                'username': self.user}): self.group.slug,
+                'username': self.author.username}),
             reverse('posts:group_list', kwargs={
-                'slug': self.group.slug}): self.group.slug,
-        }
-        for value, expected in reverse_page_names_post.items():
-            response = self.authorized_client.get(value)
-            for object in response.context['page_obj']:
-                post_group = object.group.slug
-                with self.subTest(value=value):
-                    self.assertEqual(post_group, expected)
+                'slug': self.group.slug}),
+        ]
+        for url in reverse_page_names_post:
+            with self.subTest(url=url):
+                response = self.authorized_client.get(url)
+                self.assertEqual(len(response.context['page_obj']), 1)
 
     def test_index_page_show_correct_context(self):
         """Проверка: Шаблон index с правильным контекстом"""
@@ -112,22 +111,28 @@ class PostPagesTests(TestCase):
         response = (self.authorized_client.get(
             reverse('posts:group_list',
                     kwargs={'slug': 'slug'})))
-        group = response.context['page_obj'][0]
-        self.assertEqual(group.group, self.group)
-        self.assertEqual(group.text, TEXT)
-        self.assertEqual(group.author, self.author)
         self.assertIn('page_obj', response.context)
+        self.assertIn('group', response.context)
+        post = response.context['page_obj'][0]
+        group = response.context['group']
+        self.assertEqual(post.group, self.group)
+        self.assertEqual(group, self.group)
+        self.assertEqual(post.text, TEXT)
+        self.assertEqual(post.author, self.author)
 
     def test_profile_page_shows_correct_context(self):
         """Проверка: Шаблон profile с правильным контекстом"""
         response = self.authorized_client.get(
-            reverse('posts:profile', kwargs={'username': 'User'})
+            reverse('posts:profile', kwargs={'username': self.author.username})
         )
+        self.assertIn('page_obj', response.context)
+        self.assertIn('author', response.context)
         post = response.context['page_obj'][0]
+        author = response.context['author']
         self.assertEqual(post.group, self.group)
         self.assertEqual(post.text, TEXT)
         self.assertEqual(post.author, self.author)
-        self.assertIn('page_obj', response.context)
+        self.assertEqual(author, self.author)
 
     def test_post_detail_list_page_show_correct_context(self):
         """Проверка: Шаблон post_detail с правильным контекстом"""

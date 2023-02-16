@@ -3,10 +3,13 @@ from http import HTTPStatus
 
 from django.test import Client, TestCase
 from django.urls import reverse
-from django import forms
+# from django import forms
 
 from posts.forms import PostForm
 from posts.models import Group, Post, User
+
+TEXT = "TEST_FOR_THE_TEST"
+NEW_TEXT = 'CHANGING_THE_TEXT'
 
 
 class PostCreateFormTest(TestCase):
@@ -26,7 +29,7 @@ class PostCreateFormTest(TestCase):
             description='Описание_2',
         )
         cls.post = Post.objects.create(
-            text='TEXT_FOR_TEST',
+            text=TEXT,
             author=cls.user,
             group=cls.group
         )
@@ -34,12 +37,13 @@ class PostCreateFormTest(TestCase):
     def setUp(self):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        self.guest_client = Client()
 
     def test_create_post_form(self):
         """Проверка: Создаётся ли новая запись в базе данных, создавая пост"""
         post_count = Post.objects.count()
         form_data = {
-            'text': 'TEXT_FOR_TEST',
+            'text': TEXT,
             'group': self.group.id
         }
         response = self.authorized_client.post(
@@ -62,7 +66,7 @@ class PostCreateFormTest(TestCase):
         post_count = Post.objects.count()
         form_data = {
             'group': self.group2.id,
-            'text': 'TEXT_FOR_TEST'
+            'text': TEXT
         }
         response = self.authorized_client.post(reverse(
             'posts:post_edit',
@@ -73,3 +77,19 @@ class PostCreateFormTest(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(Post.objects.count(), post_count)
         self.assertEqual(self.post.text, form_data['text'])
+
+    def test_post_edit_not_create_guest_client(self):
+        """Проверка: не изменится ли запись в Post если неавторизован."""
+        posts_count = Post.objects.count()
+        form_data = {"text": NEW_TEXT, "group": self.group.id}
+        response = self.guest_client.post(
+            reverse("posts:post_edit", args=({self.post.id})),
+            data=form_data,
+            follow=True,
+        )
+        self.assertRedirects(
+            response,
+            f"/auth/login/?next=/posts/{self.post.id}/edit/"
+        )
+        self.assertEqual(Post.objects.count(), posts_count)
+        self.assertFalse(Post.objects.filter(text=NEW_TEXT).exists())

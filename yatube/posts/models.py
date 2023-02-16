@@ -10,12 +10,10 @@ User = get_user_model()
 class Group(models.Model):
     title = models.CharField(
         max_length=200,
-        verbose_name="Заглавие"
-    )
+        verbose_name="Заглавие")
     slug = models.SlugField(
         unique=True,
-        verbose_name="Значение"
-    )
+        verbose_name="Значение")
     description = models.TextField(verbose_name="Описание")
 
     class Meta:
@@ -32,14 +30,12 @@ class Post(models.Model):
         help_text='Текст нового поста')
     pub_date = models.DateTimeField(
         auto_now_add=True,
-        verbose_name="Дата публикации"
-    )
+        verbose_name="Дата публикации")
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='posts',
-        verbose_name="Автор"
-    )
+        verbose_name="Автор")
     group = models.ForeignKey(
         Group,
         blank=True,
@@ -47,13 +43,11 @@ class Post(models.Model):
         on_delete=models.SET_NULL,
         related_name='posts',
         verbose_name='Группа',
-        help_text='Группа, к которой будет относиться пост'
-    )
+        help_text='Группа, к которой будет относиться пост')
     image = models.ImageField(
         upload_to='posts/',
         blank=True,
-        verbose_name='Картинка'
-    )
+        verbose_name='Картинка')
 
     class Meta:
         ordering = ('-pub_date',)

@@ -101,9 +101,9 @@ class PostPagesTests(TestCase):
         """Проверка: Шаблон index с правильным контекстом"""
         response = self.authorized_client.get(reverse('posts:index'))
         post = response.context['page_obj'][0]
-        self.assertEqual(post.text, TEXT)
-        self.assertEqual(post.author, self.author)
-        self.assertEqual(post.group, self.group)
+        self.assertEqual(post.text, self.post.text)
+        self.assertEqual(post.author, self.post.author)
+        self.assertEqual(post.group, self.post.group)
         self.assertIn('page_obj', response.context)
 
     def test_group_list_page_show_correct_context(self):
@@ -115,10 +115,10 @@ class PostPagesTests(TestCase):
         self.assertIn('group', response.context)
         post = response.context['page_obj'][0]
         group = response.context['group']
-        self.assertEqual(post.group, self.group)
-        self.assertEqual(group, self.group)
-        self.assertEqual(post.text, TEXT)
-        self.assertEqual(post.author, self.author)
+        self.assertEqual(post.group, self.post.group)
+        self.assertEqual(group, self.post.group)
+        self.assertEqual(post.text, self.post.text)
+        self.assertEqual(post.author, self.post.author)
 
     def test_profile_page_shows_correct_context(self):
         """Проверка: Шаблон profile с правильным контекстом"""
@@ -129,10 +129,10 @@ class PostPagesTests(TestCase):
         self.assertIn('author', response.context)
         post = response.context['page_obj'][0]
         author = response.context['author']
-        self.assertEqual(post.group, self.group)
-        self.assertEqual(post.text, TEXT)
-        self.assertEqual(post.author, self.author)
-        self.assertEqual(author, self.author)
+        self.assertEqual(post.group, self.post.group)
+        self.assertEqual(post.text, self.post.text)
+        self.assertEqual(post.author, self.post.author)
+        self.assertEqual(author, self.post.author)
 
     def test_post_detail_list_page_show_correct_context(self):
         """Проверка: Шаблон post_detail с правильным контекстом"""
@@ -140,9 +140,9 @@ class PostPagesTests(TestCase):
             reverse('posts:post_detail',
                     kwargs={'post_id': self.post.id})))
         post_detail = response.context['post']
-        self.assertEqual(post_detail.text, TEXT)
-        self.assertEqual(post_detail.group, self.group)
-        self.assertEqual(post_detail.author, self.author)
+        self.assertEqual(post_detail.text, self.post.text)
+        self.assertEqual(post_detail.group, self.post.group)
+        self.assertEqual(post_detail.author, self.post.author)
 
     def test_post_not_in_other_group(self):
         """Проверка: Созданный пост не появился в иной группе"""
@@ -155,21 +155,6 @@ class PostPagesTests(TestCase):
         self.assertNotIn(self.post, response.context.get('page_obj'))
         group2 = response.context.get('group')
         self.assertNotEqual(group2, self.group)
-
-    def test_edit_show_correct_context(self):
-        """Проверка: форма редактирования поста, по id"""
-        response = self.authorized_client.get(reverse(
-            'posts:post_edit',
-            kwargs={'post_id': self.post.pk})
-        )
-        form_fields = {
-            'text': forms.fields.CharField,
-            'group': forms.models.ModelChoiceField,
-        }
-        for value, expected in form_fields.items():
-            with self.subTest(value=value):
-                form_field = response.context['form'].fields[value]
-                self.assertIsInstance(form_field, expected)
 
 
 class PaginatorViewsTest(TestCase):

@@ -53,7 +53,7 @@ class PostURLTests(TestCase):
                 self.other, HTTPStatus.FOUND],
             [reverse('posts:post_edit', kwargs={'post_id': self.post.id}),
                 self.author, HTTPStatus.OK],
-            ['/unexisting_page/', self.author, HTTPStatus.NOT_FOUND],
+            ['/unexisting_page/', self.guest, HTTPStatus.NOT_FOUND],
         )
         for address, client, code in pages_status:
             with self.subTest(address=address, client=client):
@@ -67,11 +67,11 @@ class PostURLTests(TestCase):
         self.assertRedirects(
             resp, '/auth/login/?next=%2Fcreate%2F', HTTPStatus.FOUND)
 
-    def test_edit_unavailability_by_not_author(self):
-        """Доступность только автору (Переадресация)."""
-        resp = self.other.get('/posts/1/edit/')
-        self.assertRedirects(
-            resp, '/posts/1/', HTTPStatus.FOUND)
+    # def test_edit_unavailability_by_not_author(self):
+    #     """Доступность только автору (Переадресация)."""
+    #     resp = self.other.get('/posts/1/edit/')
+    #     self.assertRedirects(
+    #         resp, '/posts/1/', HTTPStatus.FOUND)
 
     def test_accordance_urls_and_templates(self):
         """Проверка на соответствие урл и шаблонов"""

@@ -18,6 +18,7 @@ class PostCreateFormTest(TestCase):
         super().setUpClass()
         cls.form = PostForm()
         cls.user = User.objects.create_user(username='User')
+        cls.user2 = User.objects.create_user(username='User2')
         cls.group = Group.objects.create(
             title='Название',
             slug='slug',
@@ -38,12 +39,14 @@ class PostCreateFormTest(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
         self.guest_client = Client()
+        self.authorized_client2 = Client()
+        self.authorized_client2.force_login(self.user2)
 
     def test_create_post_form(self):
         """Проверка: Создаётся ли новая запись в базе данных, создавая пост"""
         post_count = Post.objects.count()
         form_data = {
-            'text': TEXT,
+            'text': NEW_TEXT,
             'group': self.group.id
         }
         response = self.authorized_client.post(
@@ -61,12 +64,56 @@ class PostCreateFormTest(TestCase):
         self.assertEqual(post.group.id, form_data['group'])
         self.assertEqual(post.author, self.user)
 
+    def test_create_post_form_without_group(self):
+        """Проверка: Создаётся ли новая запись в базе данных,
+        создавая пост без группы"""
+        post_count = Post.objects.count()
+        form_data = {
+            'text': NEW_TEXT,
+            'group': ""
+        }
+        response = self.authorized_client.post(
+            reverse('posts:post_create'),
+            data=form_data,
+            follow=True
+        )
+        post = Post.objects.first()
+        self.assertRedirects(response, reverse(
+            'posts:profile',
+            kwargs={'username': 'User'})
+        )
+        self.assertEqual(Post.objects.count(), post_count + 1)
+        self.assertEqual(post.text, form_data['text'])
+        self.assertEqual(post.group, None)
+        self.assertEqual(post.author, self.user)
+
+    def test_create_post_form_by_guest(self):
+        """Проверка: Не создаётся новая запись в базе данных,
+        создавая пост неавторизованным пользователем"""
+        post_count = Post.objects.count()
+        form_data = {
+            'text': NEW_TEXT,
+            'group': self.group.id
+        }
+        response = self.guest_client.post(
+            reverse('posts:post_create'),
+            data=form_data,
+            follow=True
+        )
+        new_post_count = Post.objects.count()
+        self.assertRedirects(
+            response,
+            "/auth/login/?next=/create/"
+        )
+        self.assertEqual(post_count, new_post_count)
+
+
     def test_edit_post_form(self):
         """Проверка: происходит ли изменение поста в базе данных"""
         post_count = Post.objects.count()
         form_data = {
             'group': self.group2.id,
-            'text': TEXT
+            'text': NEW_TEXT
         }
         response = self.authorized_client.post(reverse(
             'posts:post_edit',
@@ -74,22 +121,51 @@ class PostCreateFormTest(TestCase):
             data=form_data,
             follow=True
         )
+        post = Post.objects.get(pk=self.post.pk)
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(Post.objects.count(), post_count)
-        self.assertEqual(self.post.text, form_data['text'])
+        self.assertEqual(post.text, form_data['text'])
 
-    def test_post_edit_not_create_guest_client(self):
+    def test_post_not_edit_by_guest_client(self):
         """Проверка: не изменится ли запись в Post если неавторизован."""
         posts_count = Post.objects.count()
+        post = Post.objects.get(pk=self.post.pk)
         form_data = {"text": NEW_TEXT, "group": self.group.id}
         response = self.guest_client.post(
             reverse("posts:post_edit", args=({self.post.id})),
             data=form_data,
             follow=True,
         )
+        edited_post = Post.objects.get(pk=self.post.pk)
         self.assertRedirects(
             response,
             f"/auth/login/?next=/posts/{self.post.id}/edit/"
         )
         self.assertEqual(Post.objects.count(), posts_count)
-        self.assertFalse(Post.objects.filter(text=NEW_TEXT).exists())
+        self.assertNotEqual(edited_post.text, form_data['text'])
+        self.assertEqual(post.text, edited_post.text)
+        self.assertEqual(post.group, edited_post.group)
+        self.assertEqual(post.author, edited_post.author)
+        self.assertEqual(post.pub_date, edited_post.pub_date)
+
+    def test_post_not_edit_by_not_author(self):
+        """Проверка: не изменится ли запись в Post если не автор."""
+        posts_count = Post.objects.count()
+        post = Post.objects.get(pk=self.post.pk)
+        form_data = {"text": NEW_TEXT, "group": self.group.id}
+        response = self.authorized_client2.post(
+            reverse("posts:post_edit", args=({self.post.id})),
+            data=form_data,
+            follow=True,
+        )
+        edited_post = Post.objects.get(pk=self.post.pk)
+        self.assertRedirects(
+            response,
+            f"/posts/{self.post.id}/"
+        )
+        self.assertEqual(Post.objects.count(), posts_count)
+        self.assertNotEqual(edited_post.text, form_data['text'])
+        self.assertEqual(post.text, edited_post.text)
+        self.assertEqual(post.group, edited_post.group)
+        self.assertEqual(post.author, edited_post.author)
+        self.assertEqual(post.pub_date, edited_post.pub_date)

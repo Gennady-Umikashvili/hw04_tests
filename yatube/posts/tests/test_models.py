@@ -18,12 +18,7 @@ class PostModelTest(TestCase):
 
     def test_models_have_correct_object_names(self):
         """Проверка: что у моделей корректно работает __str__, title"""
-        field_posts = {
-            self.post.text[:CHARACTERS_TEXT]: str(self.post)
-        }
-        for key, value in field_posts.items():
-            with self.subTest():
-                self.assertEqual(key, value)
+        self.assertEqual(self.post.text[:CHARACTERS_TEXT], str(self.post))
 
 
 class GroupModelTest(TestCase):
@@ -39,9 +34,4 @@ class GroupModelTest(TestCase):
 
     def test_models_have_correct_object_names(self):
         """Проверка: что у моделей корректно работает __str__, title"""
-        field_posts_group = {
-            self.group.title: str(self.group)
-        }
-        for key, value in field_posts_group.items():
-            with self.subTest():
-                self.assertEqual(key, value)
+        self.assertEqual(self.group.title, str(self.group))

@@ -1,51 +1,52 @@
 {% extends 'base.html' %}
+{% block title %} {{ title }} {% endblock title %}
 {% load thumbnail %}
-{% block title %}
-  Пост {{ post.text|truncatechars:30 }}
-{% endblock %}
+{% load user_filters %}
 {% block content %}
-  <div class="row">
-    <aside class="col-12 col-md-3">
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item">
-          Дата публикации: {{ post.pub_date|date:"d E Y" }}
-        </li>
-          {% if post.group %}
-          <li class="list-group-item">
-            Группа: {{ post.group.title }}
-            <a href="{% url 'posts:group_list' post.group.slug %}">
-              все записи группы
-            </a>
-          </li>
-          {% endif%}
-        <li class="list-group-item">
-          Автор: {{ post.author.get_full_name }} | {{ post.author.username }}
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Всего постов автора:  <span >{{ post.author.posts.count }}</span>
-        </li>
-        <li class="list-group-item">
-          {% if post.group %}
-            <a href="{% url 'posts:group_list' post.group.slug %}">
-              все посты пользователя 
+  <body> 
+      <div class="row">
+        <aside class="col-12 col-md-3">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Дата публикации: {{ post.created|date:'d F Y' }}
+            </li>
+              {% if post.group %}
+                <li class="list-group-item">
+                  Группа: {{ post.group }}
+                <a href="{% url 'posts:group_list' post.group.slug %}">
+                  все записи группы 
+                </a>
+              {% endif %}
+              </li>
+              <li class="list-group-item">
+                Автор: {{ post.author.username }}
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+              Всего постов автора:  <span >{{ number_of_posts }}</span>
+            </li>
+            <li class="list-group-item">
+              <a href="{% url 'posts:profile' post.author.username %}">
+                все посты пользователя
+              </a>
+            </li>
+          </ul>
+        </aside>
+        <article class="col-12 col-md-9">
+          {% thumbnail post.image "960x339" as im %}
+             <img style="margin:{{ im|margin:"960x339" }}" src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}">
+          {% endthumbnail %}
+        
+          <p>
+            {{ post.text }}
+          </p>
+          {% if user.username == post.author.username %}
+            <a class="btn btn-primary" href="{% url 'posts:post_edit' post.pk %}">
+              редактировать запись
             </a>
           {% endif %}
-        </li>
-      </ul>
-    </aside>
-    {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
-      <img class="card-img my-2" src="{{ im.url }}">
-    {% endthumbnail %}
-    <article class="col-12 col-md-9">
-      <p>
-        {{ post.text|linebreaksbr }}
-      </p>
-      {% if user == post.author %}
-        <a class="btn btn-primary" href="{% url 'posts:post_edit' post.pk %}">
-          редактировать запись
-        </a>
-        </li>
-      {% endif %}
+        </article>
+      </div>
+      {% endblock %}
+  </body>
 
-    </article>
-{% endblock %}
+</html>

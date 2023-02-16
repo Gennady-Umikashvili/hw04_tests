@@ -16,19 +16,17 @@ def get_page_content(post_list, page_number):
 def index(request):
     post_list = Post.objects.all()
     page_obj = get_page_content(post_list,request.GET.get('page'))
-    return render(
-            request, 'posts/index.html',
-            context={'page_obj': page_obj})
+    return render(request, 'posts/index.html',
+                  context={'page_obj': page_obj})
 
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.posts.all()
     page_obj = get_page_content(posts, request.GET.get('page'))
-    return render(
-            request,
-            'posts/group_list.html',
-            context={'group': group,'page_obj': page_obj})
+    return render(request, 'posts/group_list.html',
+                  context={'group': group,
+                           'page_obj': page_obj})
 
 
 def profile(request, username):
@@ -37,15 +35,14 @@ def profile(request, username):
     page_obj = get_page_content(posts,
                                 request.GET.get('page'))
     return render(request, 'posts/profile.html',
-                  context={
-                    'author': user,
-                    'page_obj': page_obj})
+                  context={'author': user,
+                           'page_obj': page_obj})
 
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
-    return render(request,'posts/post_detail.html',
-                         {'post': post})
+    return render(request, 'posts/post_detail.html',
+                  context={'post': post})
 
 
 @login_required
@@ -63,10 +60,7 @@ def post_create(request):
 @login_required
 def post_edit(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
-    form = PostForm(
-                request.POST or None,
-                # files=request.FILES or None,
-                instance=post)
+    form = PostForm(request.POST or None, instance=post)
     if post.author != request.user:
         return redirect("posts:post_detail", post_id)
     if form.is_valid():

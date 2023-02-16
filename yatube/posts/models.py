@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from sorl.thumbnail import get_thumbnail
-from sorl.thumbnail import delete
+# from sorl.thumbnail import get_thumbnail
+# from sorl.thumbnail import delete
 
 User = get_user_model()
 

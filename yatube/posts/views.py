@@ -15,7 +15,7 @@ def get_page_content(post_list, page_number):
 
 def index(request):
     post_list = Post.objects.all()
-    page_obj = get_page_content(post_list,request.GET.get('page'))
+    page_obj = get_page_content(post_list, request.GET.get('page'))
     return render(request, 'posts/index.html',
                   context={'page_obj': page_obj})
 
@@ -49,7 +49,7 @@ def post_detail(request, post_id):
 def post_create(request):
     form = PostForm(request.POST or None)
     if not form.is_valid():
-        return render(request,"posts/create_post.html",
+        return render(request, "posts/create_post.html",
                       context={'form': form,
                                'is_edit': False})
     form.instance.author = request.user

@@ -131,7 +131,6 @@ class PostCreateFormTest(TestCase):
         self.assertEqual(edited_post.text, form_data['text'])
         self.assertEqual(edited_post.group.id, form_data['group'])
 
-
     def test_post_not_edit_by_guest_client(self):
         """Проверка: не изменится ли запись в Post если неавторизован."""
         posts_count = Post.objects.count()

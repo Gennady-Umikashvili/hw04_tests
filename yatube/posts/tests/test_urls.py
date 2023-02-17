@@ -62,16 +62,10 @@ class PostURLTests(TestCase):
                 )
 
     def test_create_edit_unavailability_by_guest(self):
-        """Недоступность для гостя (Переадресация)."""
+        """Недоступность для гостя создание поста (Переадресация)."""
         resp = self.guest.get('/create/')
         self.assertRedirects(
             resp, '/auth/login/?next=%2Fcreate%2F', HTTPStatus.FOUND)
-
-    # def test_edit_unavailability_by_not_author(self):
-    #     """Доступность только автору (Переадресация)."""
-    #     resp = self.other.get('/posts/1/edit/')
-    #     self.assertRedirects(
-    #         resp, '/posts/1/', HTTPStatus.FOUND)
 
     def test_accordance_urls_and_templates(self):
         """Проверка на соответствие урл и шаблонов"""

@@ -110,6 +110,7 @@ class PostCreateFormTest(TestCase):
     def test_edit_post_form(self):
         """Проверка: происходит ли изменение поста в базе данных"""
         post_count = Post.objects.count()
+        post = Post.objects.get(pk=self.post.pk)
         form_data = {
             'group': self.group2.id,
             'text': NEW_TEXT
@@ -120,10 +121,16 @@ class PostCreateFormTest(TestCase):
             data=form_data,
             follow=True
         )
-        post = Post.objects.get(pk=self.post.pk)
+        edited_post = Post.objects.get(pk=self.post.pk)
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(Post.objects.count(), post_count)
-        self.assertEqual(post.text, form_data['text'])
+        self.assertNotEqual(post.text, edited_post.text)
+        self.assertNotEqual(post.group, edited_post.group)
+        self.assertEqual(post.author, edited_post.author)
+        self.assertEqual(post.pub_date, edited_post.pub_date)
+        self.assertEqual(edited_post.text, form_data['text'])
+        self.assertEqual(edited_post.group.id, form_data['group'])
+
 
     def test_post_not_edit_by_guest_client(self):
         """Проверка: не изменится ли запись в Post если неавторизован."""
@@ -141,7 +148,6 @@ class PostCreateFormTest(TestCase):
             f"/auth/login/?next=/posts/{self.post.id}/edit/"
         )
         self.assertEqual(Post.objects.count(), posts_count)
-        self.assertNotEqual(edited_post.text, form_data['text'])
         self.assertEqual(post.text, edited_post.text)
         self.assertEqual(post.group, edited_post.group)
         self.assertEqual(post.author, edited_post.author)
@@ -163,7 +169,6 @@ class PostCreateFormTest(TestCase):
             f"/posts/{self.post.id}/"
         )
         self.assertEqual(Post.objects.count(), posts_count)
-        self.assertNotEqual(edited_post.text, form_data['text'])
         self.assertEqual(post.text, edited_post.text)
         self.assertEqual(post.group, edited_post.group)
         self.assertEqual(post.author, edited_post.author)
